@@ -1,6 +1,7 @@
 # Terraform
-**/.terraform/*
-*.tfstate
-*.tfstate.*
+env/dev/.terraform/*
+env/dev/*.tfstate
+env/dev/*.tfstate.*
 terraform-jenkins/.terraform/*
-terraform-jenkins/terraform.*
+terraform-jenkins/*.tfstate
+terraform-jenkins/*.tfstate.*
