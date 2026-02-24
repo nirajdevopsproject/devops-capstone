@@ -1,7 +1,6 @@
 # Terraform
-env/dev/.terraform/*
-env/dev/*.tfstate
-env/dev/*.tfstate.*
-terraform-jenkins/.terraform/*
-terraform-jenkins/*.tfstate
-terraform-jenkins/*.tfstate.*
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+.terraform.lock.hcl
