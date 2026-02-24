@@ -1,0 +1,6 @@
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+terraform-jenkins/.terraform/*
+terraform-jenkins/terraform.*
