@@ -23,8 +23,8 @@ resource "aws_launch_template" "this" {
 
   #  Run Ansible Pull
   ansible-pull -U https://github.com/nirajdevopsproject/devops-capstone.git \
-             -d /opt/ansible \
-             ansible/nginx.yml
+             -d /home/ec2-user/ansible \
+             ansible/nginx.yaml
   EOF
   )
   vpc_security_group_ids = [var.app_sg_id]
