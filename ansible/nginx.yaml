@@ -2,6 +2,7 @@
 - name: Configure Web Server
   hosts: localhost
   become: yes
+  connection: local
 
   tasks:
     - name: Install nginx
