@@ -1,7 +1,7 @@
 region           = "ap-south-1"
 env              = "dev"
 ami_id           = "ami-051a31ab2f4d498f5"
-instance_type    = "t3.micro"
+instance_type    = "t3.small"
 key_name         = "jenkins"
 vpc_id           = "vpc-00516ecb4ddf3af08"
 public_subnet_id = "subnet-05a147e3ef3dad138"

@@ -15,23 +15,21 @@ resource "aws_launch_template" "this" {
   instance_type = var.instance_type
   key_name      = var.key_name
   user_data = base64encode(<<-EOF
-#!/bin/bash
-yum update -y
+  #!/bin/bash
+  yum update -y
 
-amazon-linux-extras install nginx1 -y
-systemctl enable nginx
-systemctl start nginx
+  #  Install Ansible
+  yum install -y ansible git
 
-INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
-
-echo "<h1>DevOps Capstone</h1>
-<h2>Instance ID: $INSTANCE_ID</h2>" > /usr/share/nginx/html/index.html
-EOF
+  #  Run Ansible Pull
+  ansible-pull -U https://github.com/nirajdevopsproject/devops-capstone.git \
+             -d /opt/ansible \
+             ansible/nginx.yml
+  EOF
   )
   vpc_security_group_ids = [var.app_sg_id]
   tag_specifications {
     resource_type = "instance"
-
     tags = {
       Name = "${var.env}-app-instance"
     }
