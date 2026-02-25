@@ -18,7 +18,7 @@ resource "aws_db_instance" "this" {
   vpc_security_group_ids = [var.rds_sg_id]
 
   backup_retention_period = 0
-  skip_final_snapshot     = false
+  skip_final_snapshot     = true
   deletion_protection     = false
 
   tags = {
