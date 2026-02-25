@@ -1,10 +1,16 @@
 ---
-- name: Configure Web Server
+- name: Install and start Nginx
   hosts: localhost
   become: yes
   connection: local
 
   tasks:
+
+    - name: Enable nginx extras repo
+      command: amazon-linux-extras enable nginx1
+      args:
+        creates: /etc/yum.repos.d/amzn2extra-nginx1.repo
+
     - name: Install nginx
       yum:
         name: nginx
