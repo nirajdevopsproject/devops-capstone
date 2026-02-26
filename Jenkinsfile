@@ -65,11 +65,18 @@ pipeline {
             }
         }
 
-        stage('Approval') {
-            steps {
-                input message: "Approve Terraform Apply?"
+        stage('Show Terraform Outputs') {
+        steps {
+            withCredentials([[
+                $class: 'AmazonWebServicesCredentialsBinding',
+                credentialsId: 'aws-terraform-creds'
+            ]]) {
+                dir('env/dev') {
+                    sh 'terraform output'
+                }
             }
         }
+    }
 
         stage('Terraform Apply') {
             steps {
