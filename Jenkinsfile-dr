@@ -19,7 +19,7 @@ pipeline {
                     credentialsId: 'aws-terraform-creds'
                 ]]) {
                     dir('env/dr') {
-                        sh 'terraform init'
+                        sh 'terraform init -reconfigure'
                     }
                 }
             }
