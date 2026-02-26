@@ -43,6 +43,18 @@ module "rds" {
   rds_sg_id            = module.security.rds_sg_id
   instance_class       = var.db_instance_class
 }
+resource "aws_db_snapshot" "manual" {
+  db_instance_identifier = module.rds.db_instance_id
+  db_snapshot_identifier = "${var.env}-manual-snap"
+}
+resource "aws_db_snapshot_copy" "dr_copy" {
+  provider = aws.dr
+
+  source_db_snapshot_identifier = aws_db_snapshot.manual.arn
+  target_db_snapshot_identifier = "${var.env}-dr-snap"
+
+  source_region = "ap-south-1"
+}
 module "monitoring" {
   source = "../../modules/monitoring"
 

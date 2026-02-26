@@ -17,7 +17,7 @@ resource "aws_db_instance" "this" {
   db_subnet_group_name   = var.db_subnet_group_name
   vpc_security_group_ids = [var.rds_sg_id]
 
-  backup_retention_period = 0
+  backup_retention_period = 1
   skip_final_snapshot     = true
   deletion_protection     = false
 
