@@ -80,12 +80,12 @@ module "monitoring" {
   rds_identifier  = module.rds.rds_identifier
   alb_arn_suffix  = module.alb.alb_dns_name
 }
-module "jenkins" {
-  source = "../../modules/jenkins"
+# module "jenkins" {
+#   source = "../../modules/jenkins"
 
-  env              = var.env
-  public_subnet_id = module.network.public_subnet_ids[0]
-  jenkins_sg_id    = module.security.jenkins_sg_id
-  key_name         = var.key_name
-  instance_type    = "t3.micro"
-}
+#   env              = var.env
+#   public_subnet_id = module.network.public_subnet_ids[0]
+#   jenkins_sg_id    = module.security.jenkins_sg_id
+#   key_name         = var.key_name
+#   instance_type    = "t3.micro"
+# }

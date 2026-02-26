@@ -23,7 +23,6 @@ output "private_db_subnets" {
 }
 output "rds_endpoint" {
   value = module.rds.rds_endpoint
-  sensitive = true
 }
 output "alb_arn_suffix" {
   value = module.alb.alb_arn_suffix
