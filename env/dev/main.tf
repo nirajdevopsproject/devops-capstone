@@ -53,7 +53,7 @@ resource "aws_db_snapshot_copy" "dr_copy" {
   source_db_snapshot_identifier = aws_db_snapshot.manual.arn
   target_db_snapshot_identifier = "${var.env}-dr-snap"
 
-  source_region = "ap-south-1"
+  source_region = var.region
 }
 module "monitoring" {
   source = "../../modules/monitoring"
