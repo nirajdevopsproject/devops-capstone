@@ -15,7 +15,7 @@ resource "aws_launch_template" "this" {
   instance_type = var.instance_type
   key_name      = var.key_name
   user_data = base64encode(<<-EOF
-  #!/bin/bash
+#!/bin/bash
 exec > /var/log/user-data.log 2>&1
 set -x
 
@@ -26,21 +26,21 @@ export DB_PASS="${var.db_pass}"
 export DB_NAME="${var.db_name}"
 
 # Update system and install dependencies
-yum update -y
-yum install -y git python3 python3-pip
-amazon-linux-extras enable ansible2 nginx1 -y
-yum install -y ansible nginx
+sudo yum update -y
+sudo yum install -y git python3 python3-pip
+sudo amazon-linux-extras enable ansible2 nginx1 -y
+sudo yum install -y ansible nginx
 
-# Clone repo into /opt/ansible
-mkdir -p /opt/ansible
+# Clone repo
+sudo mkdir -p /opt/ansible
 cd /opt/ansible
-git clone https://github.com/nirajdevopsproject/devops-capstone.git .
+sudo git clone https://github.com/nirajdevopsproject/devops-capstone.git .
 
-# Install Python dependencies from requirements.txt
-pip3 install -r app/requirements.txt
+# Install Python dependencies
+sudo pip3 install -r app/requirements.txt
 
 # Run Ansible playbook
-ansible-playbook ansible/nginx.yaml -i localhost, -c local
+sudo ansible-playbook ansible/nginx.yaml -i localhost, -c local
 
   EOF
   )
