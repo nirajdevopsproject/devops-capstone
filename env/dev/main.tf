@@ -44,7 +44,7 @@ module "rds" {
   instance_class       = var.db_instance_class
 }
 resource "aws_db_snapshot" "manual" {
-  db_instance_identifier = module.rds.db_instance_id
+  db_instance_identifier = module.rds.rds_identifier
   db_snapshot_identifier = "${var.env}-manual-snap"
 }
 resource "aws_db_snapshot_copy" "dr_copy" {
