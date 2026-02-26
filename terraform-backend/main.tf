@@ -46,6 +46,7 @@ resource "aws_dynamodb_table" "lock_table" {
 resource "aws_s3_bucket" "tf_state_dr" {
   provider = aws.dr
   bucket   = "${var.bucket_name}-dr"
+  force_destroy = true
 }
 # Versioning for DR Bucket
 resource "aws_s3_bucket_versioning" "versioning_dr" {

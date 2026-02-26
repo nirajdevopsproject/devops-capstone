@@ -16,30 +16,34 @@ resource "aws_launch_template" "this" {
   key_name      = var.key_name
   user_data = base64encode(<<-EOF
   #!/bin/bash
-  exec > /var/log/user-data.log 2>&1
-  set -x
+exec > /var/log/user-data.log 2>&1
+set -x
 
-  #  Export DB variables
-  export DB_HOST="${var.db_host}"
-  export DB_USER="${var.db_user}"
-  export DB_PASS="${var.db_pass}"
-  export DB_NAME="${var.db_name}"
+# Export DB variables
+export DB_HOST="${var.db_host}"
+export DB_USER="${var.db_user}"
+export DB_PASS="${var.db_pass}"
+export DB_NAME="${var.db_name}"
 
-  # Install dependencies
-  yum update -y
-  yum install -y git
-  amazon-linux-extras enable ansible2
-  yum install -y ansible
+# Update system and install dependencies
+yum update -y
+yum install -y git python3 python3-pip
+amazon-linux-extras enable ansible2 nginx1 -y
+yum install -y ansible nginx
 
-  # Run ansible-pull
-  ansible-pull -U https://github.com/nirajdevopsproject/devops-capstone.git \
-  -d /opt/ansible \
-  -i localhost, \
-  -c local \
-  ansible/nginx.yaml
+# Clone repo into /opt/ansible
+mkdir -p /opt/ansible
+cd /opt/ansible
+git clone https://github.com/nirajdevopsproject/devops-capstone.git .
 
-EOF
-)
+# Install Python dependencies from requirements.txt
+pip3 install -r app/requirements.txt
+
+# Run Ansible playbook
+ansible-playbook ansible/nginx.yaml -i localhost, -c local
+
+  EOF
+  )
   vpc_security_group_ids = [var.app_sg_id]
   tag_specifications {
     resource_type = "instance"
