@@ -12,15 +12,28 @@ pipeline {
                 checkout scm
             }
         }
-
-        stage('Terraform Init') {
+        stage('Terraform Backend Init') {
             steps {
                 withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding', 
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-terraform-creds'
+                ]]) {
+                    dir('terraform-backend') {
+                        sh 'terraform init'
+                        sh 'terraform validate'
+                        sh 'terraform apply -auto-approve'
+                    }
+                }
+            }
+        }
+        stage('Terraform Dev Init') {
+            steps {
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-terraform-creds'
                 ]]) {
                     dir('env/dev') {
-                        sh 'terraform init'
+                        sh 'terraform init -reconfigure'
                     }
                 }
             }
@@ -29,7 +42,7 @@ pipeline {
         stage('Terraform Validate') {
             steps {
                 withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding', 
+                    $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-terraform-creds'
                 ]]) {
                     dir('env/dev') {
@@ -42,7 +55,7 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding', 
+                    $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-terraform-creds'
                 ]]) {
                     dir('env/dev') {
@@ -61,7 +74,7 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding', 
+                    $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-terraform-creds'
                 ]]) {
                     dir('env/dev') {
@@ -75,7 +88,7 @@ pipeline {
             steps {
                 input message: 'Destroy DEV environment?'
                 withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding', 
+                    $class: 'AmazonWebServicesCredentialsBinding',
                     credentialsId: 'aws-terraform-creds'
                 ]]) {
                     dir('env/dev') {
@@ -84,6 +97,5 @@ pipeline {
                 }
             }
         }
-
     }
 }
