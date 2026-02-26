@@ -15,28 +15,31 @@ resource "aws_launch_template" "this" {
   instance_type = var.instance_type
   key_name      = var.key_name
   user_data = base64encode(<<-EOF
-#!/bin/bash
-exec > /var/log/user-data.log 2>&1
-set -x
+  #!/bin/bash
+  exec > /var/log/user-data.log 2>&1
+  set -x
 
-# Update system
-yum update -y
+  #  Export DB variables
+  export DB_HOST="${var.db_host}"
+  export DB_USER="${var.db_user}"
+  export DB_PASS="${var.db_pass}"
+  export DB_NAME="${var.db_name}"
 
-# Install git
-yum install -y git
+  # Install dependencies
+  yum update -y
+  yum install -y git
+  amazon-linux-extras enable ansible2
+  yum install -y ansible
 
-# Enable ansible repo
-amazon-linux-extras enable ansible2
-yum install -y ansible
-
-# Run ansible-pull
-ansible-pull -U https://github.com/nirajdevopsproject/devops-capstone.git \
+  # Run ansible-pull
+  ansible-pull -U https://github.com/nirajdevopsproject/devops-capstone.git \
   -d /opt/ansible \
   -i localhost, \
   -c local \
   ansible/nginx.yaml
+
 EOF
-  )
+)
   vpc_security_group_ids = [var.app_sg_id]
   tag_specifications {
     resource_type = "instance"

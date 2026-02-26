@@ -1,5 +1,5 @@
 ---
-- name: Install and start Nginx
+- name: Install Nginx and Deploy Flask App
   hosts: localhost
   become: yes
   connection: local
@@ -11,20 +11,80 @@
       args:
         creates: /etc/yum.repos.d/amzn2extra-nginx1.repo
 
-    - name: Install nginx
+    - name: Install required packages
       yum:
-        name: nginx
+        name:
+          - nginx
+          - python3
+          - python3-pip
+          - git
         state: present
 
-    - name: Start nginx
+    - name: Install Python dependencies
+      pip:
+        name:
+          - flask
+          - pymysql
+
+    - name: Create app directory
+      file:
+        path: /home/ec2-user/app
+        state: directory
+        owner: ec2-user
+        group: ec2-user
+        mode: '0755'
+
+    - name: Copy application files
+      copy:
+        src: /opt/ansible/app/
+        dest: /home/ec2-user/app/
+        remote_src: yes
+
+    - name: Create systemd service for Flask app
+      copy:
+        dest: /etc/systemd/system/flaskapp.service
+        content: |
+          [Unit]
+          Description=Flask Application
+          After=network.target
+
+          [Service]
+          User=ec2-user
+          WorkingDirectory=/home/ec2-user/app
+          Environment="DB_HOST={{ lookup('env','DB_HOST') }}"
+          Environment="DB_USER={{ lookup('env','DB_USER') }}"
+          Environment="DB_PASS={{ lookup('env','DB_PASS') }}"
+          Environment="DB_NAME={{ lookup('env','DB_NAME') }}"
+          ExecStart=/usr/bin/python3 /home/ec2-user/app/app.py
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Reload systemd
+      command: systemctl daemon-reload
+
+    - name: Start Flask service
       service:
-        name: nginx
+        name: flaskapp
         state: started
         enabled: yes
 
-    - name: Create index file
+    - name: Configure nginx reverse proxy
       copy:
-        dest: /usr/share/nginx/html/index.html
+        dest: /etc/nginx/conf.d/app.conf
         content: |
-          <h1>DevOps Capstone</h1>
-          <h2>Configured by Ansible Pull</h2>
+          server {
+              listen 80;
+              location / {
+                  proxy_pass http://127.0.0.1:5000;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+              }
+          }
+
+    - name: Restart nginx
+      service:
+        name: nginx
+        state: restarted
+        enabled: yes
