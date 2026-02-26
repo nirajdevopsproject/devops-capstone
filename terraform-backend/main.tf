@@ -10,6 +10,7 @@ provider "aws" {
 # S3 Bucket (Primary)
 resource "aws_s3_bucket" "tf_state" {
   bucket = var.bucket_name
+  force_destroy = true
 }
 # Enable Versioning
 resource "aws_s3_bucket_versioning" "versioning" {
