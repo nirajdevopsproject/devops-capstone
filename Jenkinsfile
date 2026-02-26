@@ -65,19 +65,6 @@ pipeline {
             }
         }
 
-        stage('Show Terraform Outputs') {
-        steps {
-            withCredentials([[
-                $class: 'AmazonWebServicesCredentialsBinding',
-                credentialsId: 'aws-terraform-creds'
-            ]]) {
-                dir('env/dev') {
-                    sh 'terraform output'
-                }
-            }
-        }
-    }
-
         stage('Terraform Apply') {
             steps {
                 withCredentials([[
@@ -104,5 +91,20 @@ pipeline {
                 }
             }
         }
+
+        stage('Destroy Backend (Manual)') {
+            steps {
+                input message: 'Destroy Terraform Backend? (S3 + DynamoDB)'
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-terraform-creds'
+                ]]) {
+                    dir('terraform-backend') {
+                        sh 'terraform init'
+                        sh 'terraform destroy -auto-approve'
+                    }
+                }
+            }
+        }   
     }
 }
