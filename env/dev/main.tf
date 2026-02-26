@@ -43,6 +43,18 @@ module "rds" {
   rds_sg_id            = module.security.rds_sg_id
   instance_class       = var.db_instance_class
 }
+resource "aws_kms_key" "dr_rds" {
+  provider = aws.dr
+
+  description = "DR RDS snapshot encryption key"
+}
+
+resource "aws_kms_alias" "dr_rds_alias" {
+  provider = aws.dr
+
+  name          = "alias/dr-rds-key"
+  target_key_id = aws_kms_key.dr_rds.key_id
+}
 resource "aws_db_snapshot" "manual" {
   db_instance_identifier = module.rds.rds_identifier
   db_snapshot_identifier = "${var.env}-manual-snap"
@@ -53,6 +65,7 @@ resource "aws_db_snapshot_copy" "dr_copy" {
   source_db_snapshot_identifier = aws_db_snapshot.manual.db_snapshot_arn
   target_db_snapshot_identifier = "${var.env}-dr-snap"
 
+  kms_key_id = aws_kms_key.dr_rds.arn
 }
 module "monitoring" {
   source = "../../modules/monitoring"
