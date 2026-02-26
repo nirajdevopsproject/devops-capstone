@@ -50,7 +50,7 @@ resource "aws_db_snapshot" "manual" {
 resource "aws_db_snapshot_copy" "dr_copy" {
   provider = aws.dr
 
-  source_db_snapshot_identifier = aws_db_snapshot.manual.id
+  source_db_snapshot_identifier = aws_db_snapshot.manual.db_snapshot_arn
   target_db_snapshot_identifier = "${var.env}-dr-snap"
 
 }
