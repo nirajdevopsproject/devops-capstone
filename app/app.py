@@ -16,12 +16,21 @@ def get_connection():
         password=os.getenv("DB_PASS"),
         database=os.getenv("DB_NAME")
     )
+
 # Home page: show all data
 @app.route("/")
 def home():
     try:
         connection = get_connection()
         cursor = connection.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS test_table (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(100),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """)
+conn.commit()
         cursor.execute("SELECT * FROM test_table;")
         data = cursor.fetchall()
         connection.close()
