@@ -31,7 +31,13 @@
         executable: pip3
 
     - name: Kill existing Flask process if running
-      shell: pkill -f app.py || true
+      shell: |
+        if pgrep -f app.py > /dev/null; then
+          pkill -f app.py
+        fi
+      args:
+        executable: /bin/bash
+      ignore_errors: yes
 
     - name: Start Flask App
       shell: nohup python3 /opt/ansible/app/app.py > /var/log/app.log 2>&1 &
