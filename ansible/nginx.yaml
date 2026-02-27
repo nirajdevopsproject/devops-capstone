@@ -11,23 +11,19 @@
 
     - name: Ensure app directory exists
       file:
-        path: /opt/app
+        path: /opt/ansible/app
         state: directory
-        owner: ec2-user
-        group: ec2-user
         mode: '0755'
 
     - name: Copy application files
       copy:
         src: /opt/ansible/app/
-        dest: /opt/app/
-        owner: ec2-user
-        group: ec2-user
+        dest: /opt/ansible/app
         remote_src: yes
 
     - name: Install Python dependencies
       pip:
-        requirements: /opt/app/requirements.txt
+        requirements: /opt/ansible/app/requirements.txt
         executable: pip3
 
     - name: Kill existing Flask process if running
@@ -40,9 +36,9 @@
       ignore_errors: yes
 
     - name: Start Flask App
-      shell: nohup python3 /opt/ansible/app/app.py > /var/log/app.log 2>&1 &
-      args:
-        executable: /bin/bash
+      shell: |
+        cd /opt/ansible/app
+        nohup python3 app.py > /var/log/app.log 2>&1 &
 
     - name: Configure nginx reverse proxy
       copy:
@@ -61,12 +57,8 @@
     - name: Test nginx configuration
       command: nginx -t
 
-    - name: Enable nginx
-      service:
-        name: nginx
-        enabled: yes
-
     - name: Restart nginx
       service:
         name: nginx
         state: restarted
+        enabled: yes
