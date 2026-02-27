@@ -20,8 +20,12 @@ resource "aws_launch_template" "this" {
 exec > /var/log/user-data.log 2>&1
 set -xe
 
-yum update -y
-yum install -y git python3 python3-pip nginx
+sudo yum update -y
+sudo yum install -y git python3 python3-pip
+sudo amazon-linux-extras install nginx1
+sudo systemctl enable nginx
+sudo systemctl start nginx
+
 
 cd /opt
 git clone https://github.com/nirajdevopsproject/devops-capstone.git ansible
