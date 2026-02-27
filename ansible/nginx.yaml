@@ -34,7 +34,7 @@
       shell: pkill -f app.py || true
 
     - name: Start Flask App
-      shell: nohup python3 /opt/app/app.py > /var/log/app.log 2>&1 &
+      shell: nohup python3 /opt/ansible/app/app.py > /var/log/app.log 2>&1 &
       args:
         executable: /bin/bash
 
