@@ -21,8 +21,11 @@ output "private_app_subnets" {
 output "private_db_subnets" {
   value = module.network.private_db_subnet_ids
 }
-output "rds_endpoint" {
-  value = module.rds.rds_endpoint
+output "rds_address" {
+  value = module.rds.rds_address
+}
+output "rds_port" {
+  value = module.rds.rds_port
 }
 output "alb_arn_suffix" {
   value = module.alb.alb_arn_suffix

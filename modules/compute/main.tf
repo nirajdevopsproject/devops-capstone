@@ -15,32 +15,35 @@ resource "aws_launch_template" "this" {
   instance_type = var.instance_type
   key_name      = var.key_name
   user_data = base64encode(<<-EOF
-#!/bin/bash
 exec > /var/log/user-data.log 2>&1
 set -x
 
-# Export DB variables
-export DB_HOST="${var.db_host}"
-export DB_USER="${var.db_user}"
-export DB_PASS="${var.db_pass}"
-export DB_NAME="${var.db_name}"
+# Save DB variables system-wide
+sudo sh -c 'echo "DB_HOST=${var.db_host}" >> /etc/environment'
+sudo sh -c 'echo "DB_PORT=${var.db_port}" >> /etc/environment'
+sudo sh -c 'echo "DB_USER=${var.db_user}" >> /etc/environment'
+sudo sh -c 'echo "DB_PASS=${var.db_pass}" >> /etc/environment'
+sudo sh -c 'echo "DB_NAME=${var.db_name}" >> /etc/environment'
 
 # Update system and install dependencies
 sudo yum update -y
 sudo yum install -y git python3 python3-pip
+
 sudo amazon-linux-extras enable ansible2 nginx1 -y
 sudo yum install -y ansible nginx
 
-# Clone repo
-sudo mkdir -p /opt/ansible
-cd /opt/ansible
-sudo git clone https://github.com/nirajdevopsproject/devops-capstone.git .
+# Clean and clone repo properly
+sudo rm -rf /opt/ansible
+sudo git clone https://github.com/nirajdevopsproject/devops-capstone.git /opt/ansible
+
+# Fix permissions (important)
+sudo chown -R $(whoami):$(whoami) /opt/ansible
 
 # Install Python dependencies
-sudo pip3 install -r app/requirements.txt
+sudo pip3 install -r /opt/ansible/app/requirements.txt
 
 # Run Ansible playbook
-sudo ansible-playbook ansible/nginx.yaml -i localhost, -c local
+sudo ansible-playbook /opt/ansible/ansible/nginx.yaml -i localhost, -c local
 
   EOF
   )

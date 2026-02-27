@@ -31,7 +31,8 @@ module "compute" {
   target_group_arn        = module.alb.target_group_arn
   instance_type           = var.instance_type
   key_name                = var.key_name
-  db_host = module.rds.rds_endpoint
+  db_port = module.rds.rds_port
+  db_host = module.rds.rds_address
   db_name = var.db_name
   db_user = var.db_username
   db_pass = var.db_password
