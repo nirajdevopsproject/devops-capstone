@@ -1,20 +1,21 @@
 from flask import Flask, render_template, request, redirect, url_for
-import pymysql
+from flask import Flask
+from dotenv import load_dotenv
 import os
+import pymysql
+
+load_dotenv()
 
 app = Flask(__name__)
 
-# Database connection
 def get_connection():
     return pymysql.connect(
-        host=os.environ.get("DB_HOST"),
-        user=os.environ.get("DB_USER"),
-        password=os.environ.get("DB_PASS"),
-        database=os.environ.get("DB_NAME"),
-        port=int(os.environ.get("DB_PORT", 3306)),
-        connect_timeout=5
+        host=os.getenv("DB_HOST"),
+        port=int(os.getenv("DB_PORT", 3306)),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASS"),
+        database=os.getenv("DB_NAME")
     )
-
 # Home page: show all data
 @app.route("/")
 def home():

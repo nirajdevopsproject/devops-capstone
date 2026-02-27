@@ -14,36 +14,37 @@ resource "aws_launch_template" "this" {
   image_id      = data.aws_ami.amazon_linux.id
   instance_type = var.instance_type
   key_name      = var.key_name
+  update_default_version = true
   user_data = base64encode(<<-EOF
+#!/bin/bash
 exec > /var/log/user-data.log 2>&1
-set -x
+set -xe
 
-# Save DB variables system-wide
-sudo sh -c 'echo "DB_HOST=${var.db_host}" >> /etc/environment'
-sudo sh -c 'echo "DB_PORT=${var.db_port}" >> /etc/environment'
-sudo sh -c 'echo "DB_USER=${var.db_user}" >> /etc/environment'
-sudo sh -c 'echo "DB_PASS=${var.db_pass}" >> /etc/environment'
-sudo sh -c 'echo "DB_NAME=${var.db_name}" >> /etc/environment'
+yum update -y
+yum install -y git python3 python3-pip nginx
 
-# Update system and install dependencies
-sudo yum update -y
-sudo yum install -y git python3 python3-pip
+cd /opt
+git clone https://github.com/nirajdevopsproject/devops-capstone.git ansible
 
-sudo amazon-linux-extras enable ansible2 nginx1 -y
-sudo yum install -y ansible nginx
+# Export DB variables globally
+echo "DB_HOST=${var.db_host}" >> /etc/environment
+echo "DB_PORT=${var.db_port}" >> /etc/environment
+echo "DB_USER=${var.db_user}" >> /etc/environment
+echo "DB_PASS=${var.db_pass}" >> /etc/environment
+echo "DB_NAME=${var.db_name}" >> /etc/environment
 
-# Clean and clone repo properly
-sudo rm -rf /opt/ansible
-sudo git clone https://github.com/nirajdevopsproject/devops-capstone.git /opt/ansible
+echo "DB_HOST=${var.db_host}" >> /opt/ansible/app/.env
+echo "DB_PORT=${var.db_port}" >> /opt/ansible/app/.env
+echo "DB_USER=${var.db_user}" >> /opt/ansible/app/.env
+echo "DB_PASS=${var.db_pass}" >> /opt/ansible/app/.env
+echo "DB_NAME=${var.db_name}" >> /opt/ansible/app/.env
 
-# Fix permissions (important)
-sudo chown -R $(whoami):$(whoami) /opt/ansible
+source /etc/environment
 
-# Install Python dependencies
-sudo pip3 install -r /opt/ansible/app/requirements.txt
+pip3 install -r /opt/ansible/app/requirements.txt
+pip3 install ansible
 
-# Run Ansible playbook
-sudo ansible-playbook /opt/ansible/ansible/nginx.yaml -i localhost, -c local
+ansible-playbook /opt/ansible/ansible/nginx.yaml -i localhost, -c local
 
   EOF
   )
