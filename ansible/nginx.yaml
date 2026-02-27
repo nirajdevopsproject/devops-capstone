@@ -4,6 +4,9 @@
   become: yes
   connection: local
 
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
   tasks:
 
     - name: Ensure app directory exists
@@ -25,10 +28,13 @@
     - name: Install Python dependencies
       pip:
         requirements: /opt/app/requirements.txt
+        executable: pip3
+
+    - name: Kill existing Flask process if running
+      shell: pkill -f app.py || true
 
     - name: Start Flask App
-      shell: |
-        nohup python3 /opt/app/app.py > /var/log/app.log 2>&1 &
+      shell: nohup python3 /opt/app/app.py > /var/log/app.log 2>&1 &
       args:
         executable: /bin/bash
 
@@ -38,12 +44,21 @@
         content: |
           server {
               listen 80;
+
               location / {
                   proxy_pass http://127.0.0.1:5000;
                   proxy_set_header Host $host;
                   proxy_set_header X-Real-IP $remote_addr;
               }
           }
+
+    - name: Test nginx configuration
+      command: nginx -t
+
+    - name: Enable nginx
+      service:
+        name: nginx
+        enabled: yes
 
     - name: Restart nginx
       service:

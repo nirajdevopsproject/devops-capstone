@@ -20,35 +20,52 @@ resource "aws_launch_template" "this" {
 exec > /var/log/user-data.log 2>&1
 set -xe
 
+# Update system
 sudo yum update -y
+
+# Install required packages
 sudo yum install -y git python3 python3-pip
-sudo amazon-linux-extras install nginx1
+
+# Install nginx
+sudo amazon-linux-extras install -y nginx1
+
+# Force python to python3
+sudo alternatives --set python /usr/bin/python3 || true
+
+# Enable and start nginx
 sudo systemctl enable nginx
 sudo systemctl start nginx
 
-
+# Clone repository
 cd /opt
-git clone https://github.com/nirajdevopsproject/devops-capstone.git ansible
+sudo rm -rf ansible
+sudo git clone https://github.com/nirajdevopsproject/devops-capstone.git ansible
 
 # Export DB variables globally
-echo "DB_HOST=${var.db_host}" >> /etc/environment
-echo "DB_PORT=${var.db_port}" >> /etc/environment
-echo "DB_USER=${var.db_user}" >> /etc/environment
-echo "DB_PASS=${var.db_pass}" >> /etc/environment
-echo "DB_NAME=${var.db_name}" >> /etc/environment
+echo "DB_HOST=${var.db_host}" | sudo tee -a /etc/environment
+echo "DB_PORT=${var.db_port}" | sudo tee -a /etc/environment
+echo "DB_USER=${var.db_user}" | sudo tee -a /etc/environment
+echo "DB_PASS=${var.db_pass}" | sudo tee -a /etc/environment
+echo "DB_NAME=${var.db_name}" | sudo tee -a /etc/environment
 
-echo "DB_HOST=${var.db_host}" >> /opt/ansible/app/.env
-echo "DB_PORT=${var.db_port}" >> /opt/ansible/app/.env
-echo "DB_USER=${var.db_user}" >> /opt/ansible/app/.env
-echo "DB_PASS=${var.db_pass}" >> /opt/ansible/app/.env
-echo "DB_NAME=${var.db_name}" >> /opt/ansible/app/.env
+# Create .env file safely
+echo "DB_HOST=${var.db_host}" | sudo tee /opt/ansible/app/.env
+echo "DB_PORT=${var.db_port}" | sudo tee -a /opt/ansible/app/.env
+echo "DB_USER=${var.db_user}" | sudo tee -a /opt/ansible/app/.env
+echo "DB_PASS=${var.db_pass}" | sudo tee -a /opt/ansible/app/.env
+echo "DB_NAME=${var.db_name}" | sudo tee -a /opt/ansible/app/.env
 
+# Load environment
 source /etc/environment
 
-pip3 install -r /opt/ansible/app/requirements.txt
-pip3 install ansible
+# Install Python dependencies
+sudo pip3 install -r /opt/ansible/app/requirements.txt
 
-ansible-playbook /opt/ansible/ansible/nginx.yaml -i localhost, -c local
+# Install Ansible
+sudo pip3 install ansible
+
+# Run playbook
+sudo ansible-playbook /opt/ansible/ansible/nginx.yaml -i localhost, -c local
 
   EOF
   )
