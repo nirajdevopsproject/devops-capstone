@@ -24,7 +24,7 @@ set -xe
 sudo yum update -y
 
 # Install required packages
-sudo yum install -y git python3 python3-pip
+sudo yum install -y git python3 python3-pip ansible
 
 # Install nginx
 sudo amazon-linux-extras install -y nginx1
@@ -65,7 +65,7 @@ sudo pip3 install -r /opt/ansible/app/requirements.txt
 sudo pip3 install ansible
 
 # Run playbook
-sudo ansible-playbook /opt/ansible/ansible/nginx.yaml -i localhost, -c local
+ansible-playbook /opt/ansible/ansible/nginx.yaml -i localhost, -c local
 
   EOF
   )
