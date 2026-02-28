@@ -2,14 +2,24 @@
 <html>
 <head>
     <title>Add Record</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+
+<div class="container">
     <h1>Add New Record</h1>
+
     <form method="post">
-        Name: <input type="text" name="name" required><br><br>
-        Value: <input type="text" name="value" required><br><br>
-        <button type="submit">Add</button>
+        <label>Name</label>
+        <input type="text" name="name" required>
+
+        <label>Value</label>
+        <input type="text" name="value" required>
+
+        <button type="submit" class="btn btn-primary">Add</button>
+        <a href="{{ url_for('home') }}" class="btn btn-danger">Back</a>
     </form>
-    <a href="{{ url_for('home') }}">Back</a>
+</div>
+
 </body>
 </html>
