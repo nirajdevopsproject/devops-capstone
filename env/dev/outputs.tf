@@ -30,6 +30,6 @@ output "rds_port" {
 output "alb_arn_suffix" {
   value = module.alb.alb_arn_suffix
 }
-output "jenkins_url" {
-  value = module.jenkins.jenkins_url
-}
+# output "jenkins_url" {
+#   value = module.jenkins.jenkins_url
+# }
